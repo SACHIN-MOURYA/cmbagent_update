@@ -82,13 +82,29 @@ def register_functions_to_agents(cmbagent_instance):
     classy_context = cmbagent_instance.get_agent_from_name('classy_context')
     plot_judge = cmbagent_instance.get_agent_from_name('plot_judge')
     plot_debugger = cmbagent_instance.get_agent_from_name('plot_debugger')
-    
+
+    classy_sz = None
+    classy_sz_response_formatter = None
+    camb = None
+    camb_response_formatter = None
+    planck = None
+    cobaya = None
+
+    agent_name = [getattr(agent, 'name', None) for agent in getattr(cmbagent_instance, 'agents', [])]
+
     if not cmbagent_instance.skip_rag_agents:
-        classy_sz = cmbagent_instance.get_agent_from_name('classy_sz_agent')
-        classy_sz_response_formatter = cmbagent_instance.get_agent_from_name('classy_sz_response_formatter')
-        camb = cmbagent_instance.get_agent_from_name('camb_agent')
-        camb_response_formatter = cmbagent_instance.get_agent_from_name('camb_response_formatter')
-        planck = cmbagent_instance.get_agent_from_name('planck_agent')
+        if "classy_sz_agent" in agent_name:
+            classy_sz = cmbagent_instance.get_agent_from_name('classy_sz_agent')
+        if "classy_sz_response_formatter" in agent_name:
+            classy_sz_response_formatter = cmbagent_instance.get_agent_from_name('classy_sz_response_formatter')
+        if "camb_agent" in agent_name:
+            camb = cmbagent_instance.get_agent_from_name('camb_agent')
+        if "camb_response_formatter" in agent_name:
+            camb_response_formatter = cmbagent_instance.get_agent_from_name('camb_response_formatter')
+        if "planck_agent" in agent_name:
+            planck = cmbagent_instance.get_agent_from_name('planck_agent')
+        if "cobaya_agent" in agent_name:
+            cobaya = cmbagent_instance.get_agent_from_name('cobaya_agent')
 
     # print("Perplexity API key: ", os.getenv("PERPLEXITY_API_KEY"))
     # perplexity_search_tool = PerplexitySearchTool(
@@ -671,10 +687,13 @@ For the next agent suggestion, follow these rules:
 **AGENT ROLES**
 Here are the descriptions of the agents that are needed to carry out the plan:
 """
-        for agent in set(needed_agents):
-            agent_object = cmbagent_instance.get_agent_from_name(agent)
+    agent_name = [getattr(agent, 'name', None) for agent in getattr(cmbagent_instance, 'agents', [])]
 
-            str_to_append += f'- {agent}: {agent_object.description}'
+        for agent in set(needed_agents):
+            if agent in agent_name:
+                agent_instance = cmbagent_instance.get_agent_from_name(agent)
+                agent_description = getattr(agent_instance, 'description', 'No description available.')
+                str_to_append += f"- **{agent}**: {agent_description}\n"
 
         str_to_append += "\n"
 

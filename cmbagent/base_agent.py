@@ -1,6 +1,15 @@
 import os 
 import logging
-from cobaya.yaml import yaml_load_file
+from ruamel.yaml import YAML
+from pathlib import Path
+
+_yaml = YAML(typ="safe")
+
+def yaml_load_file(path):
+    path = Path(path)
+    with path.open("r") as f:
+        return _yaml.load(f)
+
 from autogen.coding import LocalCommandLineCodeExecutor
 from autogen.agentchat.contrib.gpt_assistant_agent import GPTAssistantAgent
 from autogen.agentchat import UserProxyAgent
